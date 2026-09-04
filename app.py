@@ -72,7 +72,25 @@ if not st.session_state.document_uploaded:
 
         # Rerun the app so the updated session state is reflected
         # and the document-upload section is skipped.
-        st.rerun() 
+        st.rerun()
 
+if st.session_state.document_uploaded and st.session_state.vector_db:
+    query = st.chat_input("Ask Anything...")
+    if query:
+
+        st.chat_message("user").markdown(query)
+
+
+        documents = st.session_state.vector_db.similarity_search(query,2)
+        context = ""
+
+        for doc in documents:
+            context += doc.page_content + "\n\n"
+
+        prompt = f"""you are a helpful assistant and you provides answers for user quentions based on the provided context. context: {context} and question is: {query}"""
+        result = llm.invoke(prompt)
+
+        
+        st.chat_message("ai").markdown(result.content)
 ## chat ui 
 
