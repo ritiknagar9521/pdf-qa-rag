@@ -16,6 +16,9 @@ llm = ChatGoogleGenerativeAI(model= "gemini-3.7-flash")
 # across Streamlit reruns.
 if "vector_db" not in st.session_state: 
     st.session_state.vector_db = None 
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
  
 def document_process(path): 
     ## Load the PDF and convert its pages into LangChain documents. 
@@ -77,8 +80,15 @@ if not st.session_state.document_uploaded:
 ## chat ui 
 
 if st.session_state.document_uploaded and st.session_state.vector_db:
+    for oneMessage in st.session_state.messages:
+        role = oneMessage["role"]
+        content = oneMessage["content"]
+
+
     query = st.chat_input("Ask Anything...")
     if query:
+
+        st.session_state.messages.append({"role":"user", "content":query})
 
         st.chat_message("user").markdown(query)
 
@@ -98,4 +108,6 @@ if st.session_state.document_uploaded and st.session_state.vector_db:
         else:
             answer = result.content[0]["text"]
 
+        st.session_state.messages.append({"role":"ai", "content":answer})
+        
         st.chat_message("ai").markdown(answer)
