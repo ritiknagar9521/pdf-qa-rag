@@ -74,6 +74,8 @@ if not st.session_state.document_uploaded:
         # and the document-upload section is skipped.
         st.rerun()
 
+## chat ui 
+
 if st.session_state.document_uploaded and st.session_state.vector_db:
     query = st.chat_input("Ask Anything...")
     if query:
@@ -88,9 +90,12 @@ if st.session_state.document_uploaded and st.session_state.vector_db:
             context += doc.page_content + "\n\n"
 
         prompt = f"""you are a helpful assistant and you provides answers for user quentions based on the provided context. context: {context} and question is: {query}"""
+          
         result = llm.invoke(prompt)
 
-        
-        st.chat_message("ai").markdown(result.content)
-## chat ui 
+        if isinstance(result.content, str):
+           answer = result.content
+        else:
+            answer = result.content[0]["text"]
 
+        st.chat_message("ai").markdown(answer)
